@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — WILK Logistics | Transport i Spedycja</title>
+  <meta name="description" content="Artykuły o transporcie, spedycji i logistyce. Praktyczna wiedza dla firm szukających przewozu ładunków do Europy Zachodniej.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #080808; --dark: #111111; --dark-2: #1a1a1a;
+      --gold: #C9A84C; --gold-light: #E8C86E; --gold-dim: rgba(201,168,76,0.15);
+      --white: #ffffff; --gray: #888888; --gray-light: #cccccc;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: 'Inter', sans-serif; font-weight: 300; overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 60px; height: 80px;
+      background: rgba(8,8,8,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.12);
+    }
+    .nav-logo img { height: 44px; width: auto; }
+    .nav-links { display: flex; gap: 40px; list-style: none; }
+    .nav-links a { color: var(--gray-light); text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta { padding: 10px 28px; border: 1px solid var(--gold); color: var(--gold) !important; border-radius: 2px; transition: background 0.2s, color 0.2s !important; }
+    .nav-cta:hover { background: var(--gold) !important; color: var(--black) !important; }
+
+    .blog-hero {
+      padding: 160px 60px 80px;
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+    }
+    .blog-hero-tag { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+    .blog-hero h1 { font-family: 'Montserrat', sans-serif; font-size: clamp(32px, 5vw, 56px); font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+    .blog-hero h1 span { color: var(--gold); }
+    .blog-hero p { color: var(--gray); font-size: 16px; max-width: 560px; line-height: 1.7; }
+
+    .blog-grid {
+      max-width: 1200px; margin: 0 auto;
+      padding: 80px 60px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 32px;
+    }
+
+    .post-card {
+      background: var(--dark-2); border: 1px solid rgba(201,168,76,0.1);
+      border-radius: 4px; overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      text-decoration: none; color: inherit; display: block;
+    }
+    .post-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+    .post-card-body { padding: 28px; }
+    .post-card-tag { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .post-card-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; color: var(--white); }
+    .post-card-excerpt { color: var(--gray); font-size: 14px; line-height: 1.65; margin-bottom: 20px; }
+    .post-card-meta { display: flex; align-items: center; justify-content: space-between; }
+    .post-card-date { font-size: 12px; color: var(--gray); }
+    .post-card-read { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; }
+
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 0; color: var(--gray); }
+    .empty-state p { font-size: 16px; }
+
+    footer {
+      border-top: 1px solid rgba(201,168,76,0.1);
+      padding: 40px 60px; text-align: center;
+      color: var(--gray); font-size: 13px;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .blog-hero { padding: 120px 20px 60px; }
+      .blog-grid { padding: 40px 20px; }
+      footer { padding: 40px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt="WILK Logistics"></a>
+  <ul class="nav-links">
+    <li><a href="/#kalkulator">Kalkulator</a></li>
+    <li><a href="/#o-nas">O nas</a></li>
+    <li><a href="/blog" style="color:var(--gold)">Blog</a></li>
+    <li><a href="/#kontakt" class="nav-cta">Kontakt</a></li>
+  </ul>
+</nav>
+
+<section class="blog-hero">
+  <div class="blog-hero-tag">Wiedza branżowa</div>
+  <h1>Blog <span>WILK Logistics</span></h1>
+  <p>Praktyczna wiedza o transporcie, spedycji i logistyce międzynarodowej. Artykuły dla firm szukających przewozu ładunków do Europy Zachodniej.</p>
+</section>
+
+<div class="blog-grid" id="posts-grid">
+  <!-- POSTS_START -->
+  <!-- POSTS_END -->
+</div>
+
+<footer>
+  <p>© 2025–2026 WILK Logistics · <a href="/">Strona główna</a> · <a href="/#kontakt">Kontakt</a></p>
+</footer>
+
+</body>
+</html>
