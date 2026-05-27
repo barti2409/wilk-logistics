@@ -1,0 +1,2877 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WILK Logistics — Profesjonalny Transport i Spedycja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #080808;
+      --dark:       #111111;
+      --dark-2:     #1a1a1a;
+      --gold:       #C9A84C;
+      --gold-light: #E8C86E;
+      --gold-dim:   rgba(201,168,76,0.15);
+      --white:      #ffffff;
+      --gray:       #888888;
+      --gray-light: #cccccc;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 60px;
+      height: 80px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.12);
+      transition: background 0.3s;
+    }
+
+    .nav-logo img {
+      height: 44px;
+      width: auto;
+      filter: brightness(1);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--gray-light);
+      text-decoration: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+
+    .nav-cta {
+      padding: 10px 28px;
+      border: 1px solid var(--gold);
+      color: var(--gold) !important;
+      border-radius: 2px;
+      transition: background 0.2s, color 0.2s !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold) !important;
+      color: var(--black) !important;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 120px 40px 80px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(8,8,8,0.55) 0%,
+        rgba(8,8,8,0.70) 60%,
+        rgba(8,8,8,0.95) 100%
+      );
+      z-index: 1;
+    }
+
+    .hero-photo {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+      z-index: 2;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      padding-bottom: 160px;
+    }
+
+    .hero-logo {
+      width: min(480px, 80vw);
+      margin-top: 80px;
+      margin-bottom: 40px;
+      filter: drop-shadow(0 0 60px rgba(201,168,76,0.15));
+    }
+
+    .hero-tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(12px, 1.5vw, 14px);
+      font-weight: 600;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    .hero-headline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(28px, 3.6vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      color: var(--white);
+      margin-bottom: 24px;
+      max-width: 900px;
+      white-space: nowrap;
+    }
+
+    .hero-headline span { color: var(--gold); }
+
+    .hero-sub {
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 300;
+      color: var(--gray);
+      max-width: 600px;
+      line-height: 1.8;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 16px 44px;
+      background: var(--gold);
+      color: var(--black);
+      text-decoration: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    .btn-secondary {
+      padding: 16px 44px;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--white);
+      text-decoration: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 3;
+    }
+
+    .hero-scroll span {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* ── STATS ── */
+    .stats-bar {
+      background: var(--dark-2);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      padding: 48px 60px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 0 24px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-number {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    /* ── SECTIONS COMMON ── */
+    section {
+      padding: 120px 60px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-tag::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(28px, 4vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 24px;
+    }
+
+    .section-title span { color: var(--gold); }
+
+    .section-lead {
+      font-size: clamp(15px, 1.6vw, 18px);
+      color: var(--gray);
+      line-height: 1.9;
+      max-width: 600px;
+      margin-bottom: 64px;
+    }
+
+    /* ── KALKULATOR WIZARD ── */
+    #kalkulator { padding-bottom: 80px; }
+
+    .wizard-box {
+      background: var(--dark-2);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    /* Progress */
+    .wizard-progress {
+      padding: 32px 48px 0;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .wizard-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding-bottom: 28px;
+    }
+    .wstep {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: default;
+    }
+    .wstep-num {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--gray);
+      transition: all 0.3s;
+    }
+    .wstep-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gray);
+      transition: color 0.3s;
+    }
+    .wstep.active .wstep-num {
+      border-color: var(--gold);
+      background: var(--gold);
+      color: var(--black);
+    }
+    .wstep.active .wstep-label { color: var(--gold); }
+    .wstep.done .wstep-num {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,168,76,0.1);
+    }
+    .wstep.done .wstep-label { color: var(--gold-light); }
+    .wstep-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin: 0 8px;
+      margin-bottom: 28px;
+      transition: background 0.3s;
+    }
+    .wstep-line.done { background: var(--gold); }
+
+    /* Panels */
+    .wizard-panel {
+      display: none;
+      padding: 40px 48px;
+      animation: fadeInUp 0.35s ease;
+    }
+    .wizard-panel.active { display: block; }
+
+    .wizard-panel-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .wizard-panel-sub {
+      font-size: 14px; color: var(--gray);
+      margin-bottom: 32px;
+    }
+
+    /* Fields */
+    .wfield-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .wfield-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .wfield-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    .wfield label {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 8px;
+    }
+    .req { color: var(--gold); }
+
+    .winput-wrap { position: relative; }
+    .wicon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px; pointer-events: none; z-index: 1;
+    }
+    .winput-wrap input,
+    .winput-wrap select,
+    .winput-wrap textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      padding: 14px 14px 14px 44px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .winput-wrap textarea { padding-left: 16px; }
+    .winput-wrap input::placeholder,
+    .winput-wrap textarea::placeholder { color: rgba(255,255,255,0.2); }
+    .winput-wrap input:focus,
+    .winput-wrap select:focus,
+    .winput-wrap textarea:focus {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.05);
+    }
+    .winput-wrap select option { background: #1a1a1a; }
+    .winput-wrap input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+
+    /* Checkboxes */
+    .wcheck-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .wcheck-item {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 14px; color: rgba(255,255,255,0.65);
+      user-select: none;
+    }
+    .wcheck-item:hover { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.05); }
+    .wcheck-item input[type="checkbox"] {
+      -webkit-appearance: none; appearance: none;
+      width: 22px; height: 22px; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 5px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .wcheck-item input[type="checkbox"]::after {
+      content: '';
+      position: absolute;
+      left: 6px; top: 2px;
+      width: 6px; height: 11px;
+      border: 2px solid #1a1a1a;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .wcheck-item input[type="checkbox"]:checked {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .wcheck-item input[type="checkbox"]:checked::after { opacity: 1; }
+    .wcheck-item:has(input:checked) {
+      border-color: rgba(201,168,76,0.55);
+      background: rgba(201,168,76,0.1);
+      color: var(--white);
+    }
+    .wcheck-item span { flex: 1; font-weight: 500; }
+
+    /* Navigation */
+    .wizard-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .wizard-btn-next, .wizard-btn-submit {
+      padding: 15px 36px;
+      background: var(--gold);
+      color: var(--black);
+      border: none; border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .wizard-btn-next:hover, .wizard-btn-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .wizard-btn-back {
+      padding: 15px 28px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--gray-light);
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .wizard-btn-back:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Result */
+    .wizard-result-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .wr-tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 12px;
+    }
+    .wr-price {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(32px, 4vw, 56px);
+      font-weight: 800; color: var(--gold);
+      line-height: 1; margin-bottom: 12px;
+    }
+    .wr-note { font-size: 13px; color: var(--gray); line-height: 1.6; }
+    .wr-confirm {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 6px;
+      padding: 36px;
+      text-align: center;
+    }
+    .wr-confirm-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px; font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .wr-confirm-sub { font-size: 14px; color: var(--gray); line-height: 1.8; }
+
+    /* Error shake */
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)}
+    }
+    .field-error { animation: shake 0.3s ease; border-color: #e05252 !important; }
+
+    @media (max-width: 900px) {
+      .wizard-progress { padding: 24px 20px 0; }
+      .wizard-panel { padding: 28px 20px; }
+      .wfield-grid.cols-2, .wfield-grid.cols-3 { grid-template-columns: 1fr; }
+      .wcheck-grid { grid-template-columns: 1fr; }
+      .wizard-result-wrap { grid-template-columns: 1fr; }
+    }
+
+    .calc-box {
+      background: var(--dark-2);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .calc-step {
+      padding: 36px 48px;
+    }
+
+    .calc-step-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    .calc-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .calc-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr 1fr;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .calc-row:has(.calc-field:nth-child(3):last-child),
+    .calc-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+    .calc-arrow {
+      font-size: 20px;
+      color: var(--gold);
+      padding-bottom: 14px;
+      align-self: end;
+    }
+
+    .calc-field label {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    .calc-input-wrap {
+      position: relative;
+    }
+
+    .calc-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      pointer-events: none;
+    }
+
+    .calc-input-wrap input,
+    .calc-input-wrap select {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      padding: 14px 14px 14px 44px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+
+    .calc-input-wrap input::placeholder { color: rgba(255,255,255,0.25); }
+
+    .calc-input-wrap input:focus,
+    .calc-input-wrap select:focus {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.05);
+    }
+
+    .calc-input-wrap select option { background: #1a1a1a; }
+
+    .calc-checks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--gray-light);
+      cursor: pointer;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .calc-field-cta {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .calc-btn {
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .calc-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .calc-btn:active { transform: translateY(0); }
+
+    .calc-result {
+      display: none;
+      background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.03));
+      border-top: 1px solid rgba(201,168,76,0.25);
+      padding: 40px 48px;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    .calc-result.visible { display: block; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .calc-result-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .calc-result-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 12px;
+    }
+
+    .calc-result-price {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .calc-result-note {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .calc-result-detail {
+      font-size: 13px;
+      color: var(--gray-light);
+      line-height: 1.9;
+    }
+
+    .calc-result-detail strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .city-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: #1e1e1e;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 999;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .city-suggestions.open { display: block; }
+    .city-suggestion-item {
+      padding: 10px 14px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .city-suggestion-item:hover,
+    .city-suggestion-item.active {
+      background: rgba(201,168,76,0.12);
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .calc-step { padding: 28px 24px; }
+      .calc-row { grid-template-columns: 1fr; }
+      .calc-row:has(.calc-field:nth-child(3):last-child) { grid-template-columns: 1fr; }
+      .calc-arrow { display: none; }
+      .calc-result { padding: 28px 24px; }
+      .calc-result-inner { grid-template-columns: 1fr; gap: 24px; }
+    }
+
+    /* ── O NAS ── */
+    #o-nas {
+      position: relative;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--gray-light);
+      line-height: 1.9;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .about-values {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      margin-top: 64px;
+      background: rgba(201,168,76,0.12);
+    }
+
+    .value-card {
+      position: relative;
+      padding: 40px 32px;
+      background: #0a0a0a;
+      overflow: hidden;
+      cursor: default;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: background 0.35s ease, opacity 0.65s ease, transform 0.65s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .value-card.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .value-card:hover { background: rgba(201,168,76,0.04); }
+
+    .value-card-line {
+      position: absolute;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--gold), rgba(201,168,76,0.35));
+      transition: width 0.75s cubic-bezier(0.4,0,0.2,1) 0.2s;
+    }
+
+    .value-card.revealed .value-card-line { width: 100%; }
+
+    .value-num {
+      position: absolute;
+      top: -8px; right: 16px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      color: rgba(201,168,76,0.05);
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+      transition: color 0.35s;
+    }
+
+    .value-card:hover .value-num { color: rgba(201,168,76,0.1); }
+
+    .value-icon-wrap {
+      width: 48px; height: 48px;
+      border: 1px solid rgba(201,168,76,0.28);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      background: rgba(201,168,76,0.05);
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
+    }
+
+    .value-card:hover .value-icon-wrap {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.12);
+      transform: translateY(-3px);
+    }
+
+    .value-icon-wrap svg {
+      width: 20px; height: 20px;
+      stroke: var(--gold);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .value-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .value-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.75;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+
+    .about-image-box {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      background: var(--dark-2);
+      aspect-ratio: 4/5;
+      border: 1px solid rgba(201,168,76,0.12);
+    }
+
+    .about-image-box img.about-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: grayscale(20%) brightness(0.85);
+      transition: filter 0.4s, transform 0.6s;
+    }
+
+    .about-image-box:hover img.about-photo {
+      filter: grayscale(0%) brightness(0.95);
+      transform: scale(1.03);
+    }
+
+    .about-image-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.6) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .about-accent {
+      position: absolute;
+      top: -1px; right: -1px;
+      width: 80px; height: 80px;
+      border-top: 2px solid var(--gold);
+      border-right: 2px solid var(--gold);
+    }
+
+    .about-accent-2 {
+      position: absolute;
+      bottom: -1px; left: -1px;
+      width: 80px; height: 80px;
+      border-bottom: 2px solid var(--gold);
+      border-left: 2px solid var(--gold);
+    }
+
+    .about-badge {
+      position: absolute;
+      bottom: 32px;
+      right: -20px;
+      background: var(--gold);
+      color: var(--black);
+      padding: 20px 28px;
+      border-radius: 4px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .about-badge strong {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .about-badge span {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── SEPARATOR ── */
+    .separator {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+      margin: 0 60px;
+    }
+
+    /* ── GALERIA ── */
+    .galeria-wrapper {
+      background: var(--black);
+      padding: 60px 0;
+      overflow: hidden;
+    }
+
+    .galeria-track {
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .galeria-strip {
+      display: flex;
+      gap: 20px;
+      width: max-content;
+      animation: galeria-scroll 40s linear infinite;
+    }
+
+    .galeria-strip:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes galeria-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .galeria-item {
+      flex-shrink: 0;
+      width: 320px;
+      height: 220px;
+      border: 2px solid var(--gold);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(201,168,76,0.12);
+    }
+
+    .galeria-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .galeria-item:hover img {
+      transform: scale(1.05);
+    }
+
+    /* ── KONTAKT ── */
+    #kontakt {
+      background: var(--dark);
+    }
+
+    #kontakt-wrapper {
+      background: var(--dark);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .contact-icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    .contact-item-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 6px;
+    }
+
+    .contact-item-value {
+      font-size: 16px;
+      color: var(--white);
+      font-weight: 400;
+    }
+
+    .contact-item-value a {
+      color: var(--white);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .contact-item-value a:hover { color: var(--gold); }
+
+    .contact-form {
+      background: var(--dark-2);
+      border: 1px solid rgba(201,168,76,0.1);
+      border-radius: 4px;
+      padding: 48px;
+    }
+
+    .form-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 36px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
+      padding: 14px 16px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      transition: border-color 0.2s;
+      outline: none;
+      appearance: none;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.2); }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+
+    .form-group select option { background: var(--dark-2); }
+
+    .form-group textarea { resize: vertical; min-height: 120px; }
+
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .form-submit:hover { background: var(--gold-light); }
+
+
+    /* ── MAPA ── */
+    #mapa-wrapper {
+      background: var(--black);
+      border-top: 1px solid rgba(201,168,76,0.1);
+    }
+
+    #mapa-wrapper section {
+      padding-bottom: 40px;
+    }
+
+    #map {
+      width: 100%;
+      height: 560px;
+    }
+
+    .leaflet-container {
+      background: #060608 !important;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .leaflet-control-zoom a {
+      background: #1a1a1a !important;
+      color: var(--gold) !important;
+      border-color: rgba(201,168,76,0.2) !important;
+    }
+
+    .leaflet-control-zoom a:hover {
+      background: rgba(201,168,76,0.15) !important;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(8,8,8,0.75) !important;
+      color: rgba(255,255,255,0.3) !important;
+      font-size: 9px !important;
+    }
+
+    .leaflet-control-attribution a { color: rgba(201,168,76,0.5) !important; }
+
+    .leaflet-popup-content-wrapper {
+      background: #141414 !important;
+      border: 1px solid rgba(201,168,76,0.35) !important;
+      border-radius: 2px !important;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.7) !important;
+      padding: 0 !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 12px 16px !important;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .leaflet-popup-content span {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--gray);
+      margin-top: 2px;
+    }
+
+    .leaflet-popup-tip-container { display: none; }
+
+    .leaflet-popup-close-button {
+      color: rgba(201,168,76,0.6) !important;
+      font-size: 16px !important;
+    }
+
+    .map-route-eu   { stroke: #C9A84C; stroke-width: 1.4; stroke-opacity: 0.55; fill: none; }
+    .map-route-pl   { stroke: #E8C86E; stroke-width: 1.6; stroke-opacity: 0.65; fill: none; }
+    .map-route-main { stroke: #C9A84C; stroke-width: 2;   stroke-opacity: 0.8;  fill: none; }
+
+    .map-route-animated {
+      stroke-dasharray: 8 7;
+      animation: mapDash 1.8s linear infinite;
+    }
+
+    @keyframes mapDash { to { stroke-dashoffset: -30; } }
+
+    .map-legend {
+      background: rgba(10,10,10,0.88);
+      border: 1px solid rgba(201,168,76,0.2);
+      padding: 14px 18px;
+      color: #fff;
+      min-width: 180px;
+    }
+
+    .map-legend-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .map-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
+    }
+
+    .map-legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 900px) {
+      #map { height: 380px; }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #050505;
+      border-top: 1px solid rgba(201,168,76,0.1);
+      padding: 48px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-logo img {
+      height: 32px;
+      opacity: 0.7;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--gray);
+      letter-spacing: 0.5px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 11px;
+      color: var(--gray);
+      text-decoration: none;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── LANG SWITCH ── */
+    .lang-switch { display:flex; gap:4px; align-items:center; margin-right:8px; }
+    .wa-fab { position:fixed; bottom:24px; right:24px; z-index:9999; width:56px; height:56px; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(37,211,102,0.45); transition:transform .2s, box-shadow .2s; }
+    .wa-fab:hover { transform:scale(1.1); box-shadow:0 6px 24px rgba(37,211,102,0.6); }
+    @media(max-width:600px){ .wa-fab { bottom:16px; right:16px; width:50px; height:50px; } }
+    .lang-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-size:11px; font-weight:700; letter-spacing:.05em; padding:4px 8px; border-radius:3px; cursor:pointer; transition:all .2s; }
+    .lang-btn.active, .lang-btn:hover { border-color:var(--gold); color:var(--gold); background: rgba(201,168,76,0.08); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-links { gap: 20px; }
+      section { padding: 80px 24px; }
+      .stats-bar { grid-template-columns: 1fr 1fr; padding: 40px 24px; gap: 32px; }
+      .stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 32px; }
+      .stat:nth-child(2n) { border-bottom: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-visual { display: none; }
+      .about-values { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .contact-form { padding: 32px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; padding: 40px 24px; }
+      .separator { margin: 0 24px; }
+    }
+
+    @media (max-width: 600px) {
+      nav { height: 64px; }
+      .nav-links { display: none; }
+    }
+    .country-tiles { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .country-tile { padding:8px 14px; border:1px solid rgba(255,255,255,0.1); background:transparent; border-radius:6px; color:rgba(255,255,255,0.7); font-size:13px; font-weight:500; cursor:pointer; transition:all 0.18s; font-family:inherit; white-space:nowrap; }
+    .country-tile:hover { border-color:rgba(201,168,76,0.5); color:var(--light); }
+    .country-tile.selected { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,0.08); }
+    .country-tile.field-error { border-color:#e74c3c !important; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <img src="logo.png" alt="Wilk Logistics">
+    </a>
+    <ul class="nav-links">
+      <li><a href="#o-nas" data-i18n="nav_onas">O nas</a></li>
+      <li><a href="#kontakt" class="nav-cta" data-i18n="nav_kontakt">Kontakt</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="pl" onclick="setLanguage('pl')">PL</button>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">ES</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" style="max-width:100%; padding:0; margin:0;">
+    <div class="hero-photo">
+      <video class="hero-video" autoplay muted loop playsinline preload="auto">
+        <source src="hero.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <img src="logo.png" alt="Wilk Logistics" class="hero-logo">
+      <p class="hero-tagline" data-i18n="hero_tagline">Transport · Spedycja · Logistyka</p>
+      <h1 class="hero-headline"><span data-i18n="hero_h1a">Twój ładunek.</span><br><span data-i18n="hero_h1b" style="color:var(--gold)">Nasza odpowiedzialność.</span></h1>
+      <p class="hero-sub" data-i18n="hero_lead">Profesjonalne usługi transportowe i logistyczne na terenie Polski i Europy. Niezawodność, precyzja, terminowość.</p>
+      <div class="hero-buttons">
+        <a href="#kontakt" class="btn-primary" data-i18n="hero_btn1">Zapytaj o ofertę</a>
+        <a href="#o-nas" class="btn-secondary" data-i18n="hero_btn2">Poznaj nas</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span data-i18n="hero_scroll">Przewijaj</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-number">
+        <span class="count" data-target="6" data-suffix="">0</span><span style="color:var(--gold-light);font-size:0.6em;" data-i18n="stat1_suffix"> lat</span>
+      </div>
+      <div class="stat-label" data-i18n="stat1_label">Doświadczenia</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">
+        <span class="count" data-target="50" data-suffix="">0</span>
+      </div>
+      <div class="stat-label" data-i18n="stat2_label">Kierowców</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">
+        <span class="count" data-target="24" data-suffix="">0</span><span style="color:var(--gold-light);font-size:0.5em;">/7</span>
+      </div>
+      <div class="stat-label" data-i18n="stat3_label">Dyspozycyjność</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">
+        <span class="count" data-target="25" data-suffix="">0</span>
+      </div>
+      <div class="stat-label" data-i18n="stat4_label">Zestawów w flocie</div>
+    </div>
+  </div>
+
+  <!-- KALKULATOR -->
+  <div id="kalkulator-wrapper" style="background: var(--black); border-top: 1px solid rgba(201,168,76,0.1);">
+    <section id="kalkulator">
+      <p class="section-tag" data-i18n="calc_tag">Kalkulator</p>
+      <h2 class="section-title" data-i18n="calc_title">Szybka <span>wycena transportu</span></h2>
+      <p class="section-lead" data-i18n="calc_lead">Wypełnij 4 kroki — otrzymasz orientacyjną wycenę i nasz team skontaktuje się z Tobą w ciągu 2 godzin.</p>
+
+      <div class="wizard-box">
+
+        <!-- PROGRESS BAR -->
+        <div class="wizard-progress">
+          <div class="wizard-steps">
+            <div class="wstep active" data-step="1"><div class="wstep-num">1</div><div class="wstep-label" data-i18n="step1_label">Trasa</div></div>
+            <div class="wstep-line"></div>
+            <div class="wstep" data-step="2"><div class="wstep-num">2</div><div class="wstep-label" data-i18n="step2_label">Ładunek</div></div>
+            <div class="wstep-line"></div>
+            <div class="wstep" data-step="3"><div class="wstep-num">3</div><div class="wstep-label" data-i18n="step3_label">Termin</div></div>
+            <div class="wstep-line"></div>
+            <div class="wstep" data-step="4"><div class="wstep-num">4</div><div class="wstep-label" data-i18n="step4_label">Dane</div></div>
+          </div>
+        </div>
+
+        <!-- KROK 1: TRASA -->
+        <div class="wizard-panel active" id="wpanel-1">
+          <div class="wizard-panel-title" data-i18n="step1_title">Skąd i dokąd?</div>
+          <div class="wizard-panel-sub" data-i18n="step1_sub">Podaj punkt załadunku i rozładunku — odległość wyliczymy automatycznie.</div>
+          <div class="wfield-grid cols-3">
+            <div class="wfield" style="position:relative;">
+              <label data-i18n="city_from_label">Miasto załadunku <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">📍</span>
+                <input type="text" id="city-from" placeholder="np. Warszawa" data-i18n-placeholder="city_from_ph" autocomplete="off"
+                  oninput="showSuggestions('city-from')" onblur="hideSuggestions('city-from')">
+              </div>
+              <div class="city-suggestions" id="city-from-list"></div>
+            </div>
+            <div class="wfield" style="position:relative;">
+              <label data-i18n="city_to_label">Miasto rozładunku <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">🏁</span>
+                <input type="text" id="city-to" placeholder="np. Berlin" data-i18n-placeholder="city_to_ph" autocomplete="off"
+                  oninput="showSuggestions('city-to')" onblur="hideSuggestions('city-to')">
+              </div>
+              <div class="city-suggestions" id="city-to-list"></div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="distance_label">Odległość drogowa</label>
+              <div class="winput-wrap">
+                <span class="wicon">🛣️</span>
+                <input type="text" id="distance-display" placeholder="— km" readonly
+                  style="background:rgba(201,168,76,0.06);color:var(--gold);font-weight:700;cursor:default;">
+                <input type="hidden" id="distance">
+              </div>
+            </div>
+          </div>
+          <div class="wfield" style="margin-top:20px;">
+            <label>Kraj docelowy <span class="req">*</span></label>
+            <div class="country-tiles">
+              <button type="button" class="country-tile" id="ctile-fr" onclick="selectCountry('FR')">🇫🇷 Francja</button>
+              <button type="button" class="country-tile" id="ctile-it" onclick="selectCountry('IT')">🇮🇹 Włochy</button>
+              <button type="button" class="country-tile" id="ctile-es" onclick="selectCountry('ES')">🇪🇸 Hiszpania</button>
+              <button type="button" class="country-tile" id="ctile-pt" onclick="selectCountry('PT')">🇵🇹 Portugalia</button>
+              <button type="button" class="country-tile" id="ctile-de" onclick="selectCountry('DE')">🇩🇪 Niemcy</button>
+              <button type="button" class="country-tile" id="ctile-nl" onclick="selectCountry('NL')">🇳🇱 Holandia</button>
+              <button type="button" class="country-tile" id="ctile-be" onclick="selectCountry('BE')">🇧🇪 Belgia</button>
+              <button type="button" class="country-tile" id="ctile-lu" onclick="selectCountry('LU')">🇱🇺 Luksemburg</button>
+            </div>
+            <input type="hidden" id="dest-country">
+          </div>
+          <div class="wizard-nav">
+            <div></div>
+            <button class="wizard-btn-next" data-i18n="btn_next_cargo" onclick="wizardNext(1)">Dalej — Ładunek →</button>
+          </div>
+        </div>
+
+        <!-- KROK 2: ŁADUNEK -->
+        <div class="wizard-panel" id="wpanel-2">
+          <div class="wizard-panel-title" data-i18n="step2_title">Co przewozisz?</div>
+          <div class="wizard-panel-sub" data-i18n="step2_sub">Opisz ładunek — rodzaj, waga i wymiary wpływają na wycenę.</div>
+          <div class="wfield-grid cols-3">
+            <div class="wfield">
+              <label data-i18n="weight_label">Waga ładunku <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">⚖️</span>
+                <input type="number" id="weight" placeholder="np. 1500" data-i18n-placeholder="weight_ph" min="1" max="24000" style="padding-right:44px;">
+                <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--gray);pointer-events:none;">kg</span>
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="cargo_type_label">Rodzaj ładunku <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">📦</span>
+                <select id="cargo-type">
+                  <option value="" data-i18n="cargo_select_ph">Wybierz typ</option>
+                  <option value="standard" data-i18n="cargo_std">Standardowy (suchy)</option>
+                  <option value="chilled" data-i18n="cargo_chilled">Chłodniczy (2–8°C)</option>
+                  <option value="frozen" data-i18n="cargo_frozen">Mrożony (-18°C)</option>
+                  <option value="adr" data-i18n="cargo_adr">ADR (niebezpieczne)</option>
+                  <option value="oversized" data-i18n="cargo_oversized">Ponadgabarytowy</option>
+                  <option value="valuable" data-i18n="cargo_valuable">Wartościowy</option>
+                </select>
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="load_type_label">Rodzaj transportu <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">🚛</span>
+                <select id="load-type">
+                  <option value="" data-i18n="load_select_ph">Wybierz</option>
+                  <option value="ftl" data-i18n="load_ftl">FTL — całopojazdowy</option>
+                  <option value="ltl" data-i18n="load_ltl">LTL — częściowy</option>
+                  <option value="express" data-i18n="load_express">Ekspresowy</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="wfield-grid cols-3" style="margin-top:16px;">
+            <div class="wfield">
+              <label>Długość (cm) <span style="color:var(--gray);font-size:10px;">opcjonalnie</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">📐</span>
+                <input type="number" id="dim-l" placeholder="np. 120" min="1">
+              </div>
+            </div>
+            <div class="wfield">
+              <label>Szerokość (cm)</label>
+              <div class="winput-wrap">
+                <span class="wicon">📐</span>
+                <input type="number" id="dim-w" placeholder="np. 80" min="1">
+              </div>
+            </div>
+            <div class="wfield">
+              <label>Wysokość (cm)</label>
+              <div class="winput-wrap">
+                <span class="wicon">📐</span>
+                <input type="number" id="dim-h" placeholder="np. 100" min="1">
+              </div>
+            </div>
+          </div>
+          <div class="wizard-nav">
+            <button class="wizard-btn-back" data-i18n="btn_back" onclick="wizardBack(2)">← Wróć</button>
+            <button class="wizard-btn-next" data-i18n="btn_next_deadline" onclick="wizardNext(2)">Dalej — Termin →</button>
+          </div>
+        </div>
+
+        <!-- KROK 3: TERMIN -->
+        <div class="wizard-panel" id="wpanel-3">
+          <div class="wizard-panel-title" data-i18n="step3_title">Kiedy i jak?</div>
+          <div class="wizard-panel-sub" data-i18n="step3_sub">Wybierz termin i ewentualne usługi dodatkowe.</div>
+          <div class="wfield-grid cols-2">
+            <div class="wfield">
+              <label data-i18n="field_loaddate">Data załadunku</label>
+              <div class="winput-wrap">
+                <span class="wicon">📅</span>
+                <input type="date" id="load-date" lang="pl">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="urgency_label">Termin realizacji</label>
+              <div class="winput-wrap">
+                <span class="wicon">⚡</span>
+                <select id="urgency">
+                  <option value="standard" data-i18n="urg_std">Standardowy (3–5 dni roboczych)</option>
+                  <option value="fast" data-i18n="urg_fast">Przyspieszony (1–2 dni)</option>
+                  <option value="express" data-i18n="urg_express">Ekspresowy (tego samego dnia)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="wfield" style="margin-top:16px;">
+            <label data-i18n="additional_services_label">Usługi dodatkowe</label>
+            <div class="wcheck-grid">
+              <label class="wcheck-item"><input type="checkbox" id="opt-insurance"><span>🛡️ <span data-i18n="opt_insurance_label">Ubezpieczenie cargo</span></span></label>
+              <label class="wcheck-item"><input type="checkbox" id="opt-tracking"><span>📡 <span data-i18n="opt_tracking_label">Monitoring GPS 24/7</span></span></label>
+              <label class="wcheck-item"><input type="checkbox" id="opt-tail"><span>🔧 <span data-i18n="opt_tail_label">Winda tylna / rampa</span></span></label>
+              <label class="wcheck-item"><input type="checkbox" id="opt-adr"><span>⚠️ <span data-i18n="opt_adr_label">Dopuszczenie ADR</span></span></label>
+            </div>
+          </div>
+          <div class="wfield" style="margin-top:16px;">
+            <label data-i18n="notes_label">Uwagi do zlecenia <span style="color:var(--gray);font-size:10px;">opcjonalnie</span></label>
+            <div class="winput-wrap">
+              <textarea id="notes" placeholder="np. towar kruchy, potrzebne paski mocujące, dostawa do rampy nr 3…" data-i18n-placeholder="notes_ph" style="min-height:80px; padding:14px 16px; resize:vertical;"></textarea>
+            </div>
+          </div>
+          <div class="wizard-nav">
+            <button class="wizard-btn-back" data-i18n="btn_back" onclick="wizardBack(3)">← Wróć</button>
+            <button class="wizard-btn-next" data-i18n="btn_next_contact" onclick="wizardNext(3)">Dalej — Dane kontaktowe →</button>
+          </div>
+        </div>
+
+        <!-- KROK 4: DANE -->
+        <div class="wizard-panel" id="wpanel-4">
+          <div class="wizard-panel-title" data-i18n="step4_title">Twoje dane</div>
+          <div class="wizard-panel-sub" data-i18n="step4_sub">Prześlemy wycenę i skontaktujemy się w ciągu 2 godzin w dni robocze.</div>
+          <div class="wfield-grid cols-2">
+            <div class="wfield">
+              <label data-i18n="field_name">Imię i nazwisko <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">👤</span>
+                <input type="text" id="contact-name" placeholder="Jan Kowalski" data-i18n-placeholder="field_name_ph">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_company">Nazwa firmy <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">🏢</span>
+                <input type="text" id="contact-company" placeholder="np. ABC Transport Sp. z o.o." data-i18n-placeholder="field_company_ph">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_email">Adres e-mail <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">✉️</span>
+                <input type="email" id="contact-email" placeholder="jan@firma.pl" data-i18n-placeholder="field_email_ph">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_phone">Numer telefonu <span class="req">*</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">📞</span>
+                <input type="tel" id="contact-phone" placeholder="+48 000 000 000">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_loaddate">Data załadunku <span style="color:var(--gray);font-size:10px;" data-i18n="optional_label">opcjonalnie</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">📅</span>
+                <input type="date" id="contact-load-date">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_deadline">Termin realizacji <span style="color:var(--gray);font-size:10px;" data-i18n="optional_label">opcjonalnie</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">🗓️</span>
+                <input type="date" id="contact-deadline">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_nip">NIP firmy <span style="color:var(--gray);font-size:10px;" data-i18n="optional_label">opcjonalnie</span></label>
+              <div class="winput-wrap">
+                <span class="wicon">🔢</span>
+                <input type="text" id="contact-nip" placeholder="000-000-00-00">
+              </div>
+            </div>
+            <div class="wfield">
+              <label data-i18n="field_source">Skąd nas znasz?</label>
+              <div class="winput-wrap">
+                <span class="wicon">💬</span>
+                <select id="contact-source">
+                  <option value="" data-i18n="source_select_ph">Wybierz</option>
+                  <option data-i18n="src_opt1">Google</option>
+                  <option data-i18n="src_opt2">Polecenie / znajomi</option>
+                  <option data-i18n="src_opt3">Media społecznościowe</option>
+                  <option data-i18n="src_opt4">Giełda transportowa</option>
+                  <option data-i18n="src_opt5">Inne</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-nav">
+            <button class="wizard-btn-back" data-i18n="btn_back" onclick="wizardBack(4)">← Wróć</button>
+            <button class="wizard-btn-submit" data-i18n="btn_calculate" onclick="calculatePrice()">Oblicz wycenę i wyślij →</button>
+          </div>
+        </div>
+
+        <!-- WYNIK -->
+        <div class="wizard-panel" id="wpanel-5">
+          <div class="wizard-result-wrap">
+            <div class="wizard-result-left">
+              <div class="wr-tag" data-i18n="result_tag">Szacowana cena netto</div>
+              <div class="wr-price" id="result-price">— €</div>
+              <div class="wr-note" id="result-note"></div>
+              <button class="wizard-btn-back" style="margin-top:24px;width:auto;padding:12px 28px;" data-i18n="result_newcalc" onclick="wizardReset()">↺ Nowa wycena</button>
+            </div>
+            <div class="wizard-result-right">
+              <div class="wr-confirm">
+                <div style="font-size:36px;margin-bottom:12px;">✅</div>
+                <div class="wr-confirm-title" data-i18n="result_sent_title">Zapytanie wysłane!</div>
+                <div class="wr-confirm-sub" id="result-details"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- O NAS -->
+  <section id="o-nas">
+    <div class="about-grid">
+      <div>
+        <p class="section-tag" data-i18n="about_tag">O nas</p>
+        <h2 class="section-title" data-i18n="about_title">Siła i <span>precyzja</span><br>w każdym kursie</h2>
+        <p class="section-lead" data-i18n="about_lead">WILK Logistics to firma transportowa zbudowana na filarach profesjonalizmu, rzetelności i partnerskiego podejścia do każdego klienta.</p>
+        <div class="about-text">
+          <p data-i18n="about_p1">Od 2018 roku obsługujemy firmy z sektora przemysłowego, handlowego i produkcyjnego, dostarczając ich ładunki bezpiecznie i terminowo — w Polsce i za granicą. We własnej flocie posiadamy 25 zestawów z naczepami typu chłodnia.</p>
+          <p data-i18n="about_p2">Specjalizujemy się w przewozie towarów łatwo psujących się oraz elektroniki. Większość tras realizujemy w podwójnych obsadach kierowców, dzięki czemu ekspresowo dostarczamy towar bez zbędnych przestojów.</p>
+          <p data-i18n="about_p3">Obsługujemy głównie kraje zachodnie — Portugalię, Hiszpanię, Francję i Benelux (90% naszych tras). Porozumiewamy się w językach angielskim i hiszpańskim.</p>
+        </div>
+      </div>
+
+      <div class="about-visual">
+        <div class="about-image-box">
+          <div class="about-accent"></div>
+          <div class="about-accent-2"></div>
+          <img
+            src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=85&fit=crop"
+            alt="Wilk Logistics — flota ciężarówek"
+            class="about-photo"
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="about-values">
+      <div class="value-card" data-vc-delay="0">
+        <div class="value-card-line"></div>
+        <span class="value-num">01</span>
+        <div class="value-icon-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 15.5 14"/></svg>
+        </div>
+        <div class="value-title" data-i18n="val1_title">Terminowość</div>
+        <div class="value-desc" data-i18n="val1_desc">Dotrzymujemy terminów. Każde zlecenie realizujemy zgodnie z uzgodnionym harmonogramem.</div>
+      </div>
+      <div class="value-card" data-vc-delay="150">
+        <div class="value-card-line"></div>
+        <span class="value-num">02</span>
+        <div class="value-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="value-title" data-i18n="val2_title">Bezpieczeństwo</div>
+        <div class="value-desc" data-i18n="val2_desc">Pełne ubezpieczenie ładunku i monitoring GPS na każdym etapie transportu.</div>
+      </div>
+      <div class="value-card" data-vc-delay="300">
+        <div class="value-card-line"></div>
+        <span class="value-num">03</span>
+        <div class="value-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="value-title" data-i18n="val3_title">Partnerstwo</div>
+        <div class="value-desc" data-i18n="val3_desc">Budujemy długofalowe relacje oparte na zaufaniu i wzajemnym szacunku.</div>
+      </div>
+      <div class="value-card" data-vc-delay="450">
+        <div class="value-card-line"></div>
+        <span class="value-num">04</span>
+        <div class="value-icon-wrap">
+          <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="value-title" data-i18n="val4_title">Elastyczność</div>
+        <div class="value-desc" data-i18n="val4_desc">Dostosowujemy się do wymagań klienta — od ekspresowych dostaw po regularne trasy.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAPA ZASIĘGU -->
+  <div id="mapa-wrapper">
+    <section id="mapa">
+      <p class="section-tag" data-i18n="routes_tag">Zasięg</p>
+      <h2 class="section-title" data-i18n="routes_title">Gdzie <span>dowozimy</span></h2>
+      <p class="section-lead" data-i18n="routes_lead">Regularne kursy w Polsce i wybranych krajach UE. Kliknij miasto, aby zobaczyć szczegóły.</p>
+    </section>
+    <div id="map"></div>
+  </div>
+
+  <!-- PHOTO BANNER -->
+  <div style="
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+    margin: 0;
+  ">
+    <img
+      src="hero.jpg"
+      alt="Wilk Logistics — flota ciężarówek"
+      style="
+        width: 100%; height: 100%;
+        object-fit: cover; object-position: center 50%;
+        filter: brightness(0.45) grayscale(10%);
+        display: block;
+      "
+    >
+    <div style="
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(8,8,8,0.8) 0%, rgba(8,8,8,0.3) 60%, transparent 100%);
+      display: flex; align-items: center;
+      padding: 0 80px;
+    ">
+      <div>
+        <p style="
+          font-family: 'Montserrat', sans-serif;
+          font-size: 11px; font-weight: 700;
+          letter-spacing: 4px; text-transform: uppercase;
+          color: var(--gold); margin-bottom: 16px;
+        " data-i18n="mission_tag">Nasza misja</p>
+        <h3 style="
+          font-family: 'Montserrat', sans-serif;
+          font-size: clamp(24px, 3.5vw, 44px);
+          font-weight: 800; line-height: 1.2;
+          max-width: 560px; color: #fff;
+        " data-i18n="mission_h3">Każdy ładunek traktujemy<br>jak własny.</h3>
+        <div style="
+          width: 64px; height: 2px;
+          background: var(--gold); margin-top: 24px;
+        "></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALERIA -->
+  <div class="galeria-wrapper">
+    <div class="galeria-track">
+      <div class="galeria-strip">
+        <div class="galeria-item"><img src="galeria/unnamed.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-2.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-3.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-4.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-5.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-6.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-7.jpg" alt="WILK Logistics"></div>
+        <!-- duplikat dla seamless loop -->
+        <div class="galeria-item"><img src="galeria/unnamed.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-2.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-3.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-4.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-5.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-6.jpg" alt="WILK Logistics"></div>
+        <div class="galeria-item"><img src="galeria/unnamed-7.jpg" alt="WILK Logistics"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KONTAKT -->
+  <div id="kontakt-wrapper">
+    <section id="kontakt">
+      <p class="section-tag" data-i18n="contact_tag">Kontakt</p>
+      <h2 class="section-title" data-i18n="contact_title">Porozmawiajmy<br>o <span>Twoim zleceniu</span></h2>
+      <p class="section-lead" data-i18n="contact_lead">Wypełnij formularz lub skontaktuj się bezpośrednio. Odpowiadamy w ciągu 2 godzin w dni robocze.</p>
+
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div style="
+            border-radius: 4px; overflow: hidden;
+            border: 1px solid rgba(201,168,76,0.12);
+            height: 220px; margin-bottom: 36px;
+          ">
+            <img
+              src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=85&fit=crop"
+              alt="magazyn logistyczny"
+              style="
+                width: 100%; height: 100%;
+                object-fit: cover; object-position: center;
+                filter: brightness(0.7) grayscale(15%);
+                display: block;
+              "
+            >
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📞</div>
+            <div>
+              <div class="contact-item-label" data-i18n="contact_phone_label">Telefon</div>
+              <div class="contact-item-value">
+                <a href="tel:+48539116675">+48 539 116 675</a>
+              </div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">✉️</div>
+            <div>
+              <div class="contact-item-label" data-i18n="contact_email_label">Email</div>
+              <div class="contact-item-value">
+                <a href="mailto:k.wisniewski@wilklogistics.com">k.wisniewski@wilklogistics.com</a>
+              </div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <div class="contact-item-label" data-i18n="contact_address_label">Adres</div>
+              <div class="contact-item-value">ul. Długa 44/50<br>00-241 Warszawa</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🕐</div>
+            <div>
+              <div class="contact-item-label" data-i18n="contact_hours_label">Godziny pracy</div>
+              <div class="contact-item-value"><span data-i18n="contact_hours_val">Pon – Pt: 8:00 – 18:00</span><br><span style="color:var(--gray);font-size:14px;" data-i18n="contact_24">Dyspozytornia 24/7</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form">
+          <div class="form-title" data-i18n="form_title">Zapytaj o ofertę</div>
+          <div class="form-subtitle" data-i18n="form_subtitle">Bezpłatna wycena w 2 godziny</div>
+          <form onsubmit="handleSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="cf_name_label">Imię i nazwisko</label>
+                <input type="text" id="cf-name" placeholder="Jan Kowalski" data-i18n-placeholder="cf_name_ph" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="cf_company_label">Firma</label>
+                <input type="text" id="cf-company" placeholder="Nazwa firmy" data-i18n-placeholder="cf_company_ph">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label data-i18n="cf_phone_label">Telefon</label>
+                <input type="tel" id="cf-phone" placeholder="+48 000 000 000">
+              </div>
+              <div class="form-group">
+                <label data-i18n="cf_email_label">Email</label>
+                <input type="email" id="cf-email" placeholder="email@firma.pl" data-i18n-placeholder="cf_email_ph" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label data-i18n="cf_transport_label">Rodzaj transportu</label>
+              <select id="cf-transport">
+                <option value="" disabled selected data-i18n="cf_transport_ph">Wybierz rodzaj transportu</option>
+                <option data-i18n="cf_opt1">Transport krajowy</option>
+                <option data-i18n="cf_opt2">Transport międzynarodowy</option>
+                <option data-i18n="cf_opt3">Spedycja</option>
+                <option data-i18n="cf_opt4">Transport ekspresowy</option>
+                <option data-i18n="cf_opt5">Inne</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label data-i18n="cf_details_label">Szczegóły zlecenia</label>
+              <textarea id="cf-details" placeholder="Opisz zlecenie: trasa, rodzaj towaru, waga, termin..." data-i18n-placeholder="cf_details_ph"></textarea>
+            </div>
+            <button type="submit" class="form-submit" data-i18n="btn_send">Wyślij zapytanie →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">
+      <img src="logo.png" alt="Wilk Logistics">
+    </div>
+    <p class="footer-copy" data-i18n="footer_copy">© 2018–2025 WILK Logistics. Wszelkie prawa zastrzeżone.</p>
+    <ul class="footer-links">
+      <li><a href="#o-nas" data-i18n="nav_onas">O nas</a></li>
+      <li><a href="#kontakt" data-i18n="nav_kontakt">Kontakt</a></li>
+    </ul>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    // Nav scroll effect
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        nav.style.background = 'rgba(8,8,8,0.97)';
+        nav.style.borderBottomColor = 'rgba(201,168,76,0.2)';
+      } else {
+        nav.style.background = 'rgba(8,8,8,0.85)';
+        nav.style.borderBottomColor = 'rgba(201,168,76,0.12)';
+      }
+    });
+
+    // Intersection Observer for fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.contact-item, .stat').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+
+    // Value cards — staggered reveal
+    const vcObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const card = entry.target;
+          const delay = parseInt(card.dataset.vcDelay) || 0;
+          setTimeout(() => card.classList.add('revealed'), delay);
+          obs.unobserve(card);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.value-card').forEach(card => vcObserver.observe(card));
+
+
+    // ── Miasta i współrzędne ──────────────────────────────────────────────────
+    const CITIES = {
+      // Polska
+      'Warszawa':      [52.23, 21.01],
+      'Kraków':        [50.06, 19.94],
+      'Wrocław':       [51.11, 17.04],
+      'Gdańsk':        [54.35, 18.65],
+      'Poznań':        [52.41, 16.93],
+      'Łódź':          [51.77, 19.46],
+      'Katowice':      [50.26, 19.02],
+      'Szczecin':      [53.43, 14.55],
+      'Lublin':        [51.25, 22.57],
+      'Białystok':     [53.13, 23.16],
+      'Rzeszów':       [50.04, 22.00],
+      'Toruń':         [53.01, 18.60],
+      'Bydgoszcz':     [53.12, 18.01],
+      'Kielce':        [50.87, 20.63],
+      'Olsztyn':       [53.78, 20.48],
+      'Zielona Góra':  [51.94, 15.51],
+      'Opole':         [50.67, 17.93],
+      'Radom':         [51.40, 21.15],
+      'Częstochowa':   [50.81, 19.12],
+      'Gdynia':        [54.52, 18.53],
+      // Europa
+      'Berlin':        [52.52, 13.40],
+      'Hamburg':       [53.57, 10.02],
+      'Monachium':     [48.14, 11.58],
+      'Frankfurt':     [50.11, 8.68],
+      'Kolonia':       [50.94, 6.96],
+      'Dortmund':      [51.51, 7.47],
+      'Stuttgart':     [48.78, 9.18],
+      'Praga':         [50.08, 14.42],
+      'Brno':          [49.19, 16.61],
+      'Wiedeń':        [48.21, 16.37],
+      'Bratysława':    [48.15, 17.11],
+      'Budapeszt':     [47.50, 19.04],
+      'Amsterdam':     [52.37, 4.90],
+      'Bruksela':      [50.85, 4.35],
+      'Paryż':         [48.86, 2.35],
+      'Lyon':          [45.75, 4.83],
+      'Kopenhaga':     [55.68, 12.57],
+      'Sztokholm':     [59.33, 18.07],
+      'Oslo':          [59.91, 10.75],
+      'Helsinki':      [60.17, 24.93],
+      'Wilno':         [54.69, 25.28],
+      'Ryga':          [56.95, 24.11],
+      'Tallinn':       [59.44, 24.75],
+      'Kijów':         [50.45, 30.52],
+      'Bukareszt':     [44.43, 26.10],
+      'Madryt':        [40.42, -3.70],
+      'Barcelona':     [41.39, 2.16],
+      'Mediolan':      [45.47, 9.19],
+      'Rzym':          [41.90, 12.50],
+      'Londyn':        [51.51, -0.13],
+    };
+
+    const PL_CITIES = ['Warszawa','Kraków','Wrocław','Gdańsk','Poznań','Łódź',
+      'Katowice','Szczecin','Lublin','Białystok','Rzeszów','Toruń','Bydgoszcz',
+      'Kielce','Olsztyn','Zielona Góra','Opole','Radom','Częstochowa','Gdynia'];
+
+    function selectCountry(code) {
+      document.getElementById('dest-country').value = code;
+      document.querySelectorAll('.country-tile').forEach(t => t.classList.remove('selected', 'field-error'));
+      document.getElementById('ctile-' + code.toLowerCase()).classList.add('selected');
+    }
+
+    function haversineKm([lat1,lon1], [lat2,lon2]) {
+      const R = 6371, toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+      return Math.round(R * 2 * Math.asin(Math.sqrt(a)) * 1.38); // ×1.38 road factor
+    }
+
+    // ── Wizard nawigacja ──────────────────────────────────────────────────────
+    let currentStep = 1;
+
+    function wizardGoTo(step) {
+      document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('wpanel-' + step).classList.add('active');
+      document.querySelectorAll('.wstep').forEach((el, i) => {
+        el.classList.remove('active','done');
+        if (i + 1 < step) el.classList.add('done');
+        if (i + 1 === step) el.classList.add('active');
+      });
+      document.querySelectorAll('.wstep-line').forEach((el, i) => {
+        el.classList.toggle('done', i + 1 < step);
+      });
+      currentStep = step;
+      document.getElementById('kalkulator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function wizardNext(fromStep) {
+      if (!wizardValidate(fromStep)) return;
+      wizardGoTo(fromStep + 1);
+    }
+
+    function wizardBack(fromStep) { wizardGoTo(fromStep - 1); }
+
+    function wizardReset() { wizardGoTo(1); }
+
+    function wizardValidate(step) {
+      const required = {
+        1: ['city-from','city-to'],
+        2: ['weight','cargo-type','load-type'],
+        3: [],
+        4: ['contact-name','contact-company','contact-email','contact-phone'],
+      };
+      let ok = true;
+      (required[step] || []).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const empty = !el.value.trim();
+        if (empty) {
+          el.classList.add('field-error');
+          el.addEventListener('input', () => el.classList.remove('field-error'), { once: true });
+          ok = false;
+        }
+      });
+      if (!ok) return false;
+      if (step === 1 && !document.getElementById('distance').value) {
+        const el = document.getElementById('city-to');
+        el.classList.add('field-error');
+        return false;
+      }
+      if (step === 1 && !document.getElementById('dest-country').value) {
+        document.querySelectorAll('.country-tile').forEach(t => t.classList.add('field-error'));
+        return false;
+      }
+      return true;
+    }
+
+    const _suggestTimers = {};
+
+    async function showSuggestions(fieldId) {
+      clearTimeout(_suggestTimers[fieldId]);
+      const input = document.getElementById(fieldId);
+      const list  = document.getElementById(fieldId + '-list');
+      const query = input.value.trim();
+      if (query.length < 2) { list.innerHTML = ''; list.classList.remove('open'); return; }
+
+      _suggestTimers[fieldId] = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/places?input=${encodeURIComponent(query)}`);
+          const data = await res.json();
+          list.innerHTML = '';
+          if (!data.predictions?.length) { list.classList.remove('open'); return; }
+          data.predictions.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'city-suggestion-item';
+            item.textContent = p.description;
+            item.onmousedown = () => {
+              input.value = p.description;
+              list.classList.remove('open');
+              updateDistance();
+            };
+            list.appendChild(item);
+          });
+          list.classList.add('open');
+        } catch { list.classList.remove('open'); }
+      }, 250);
+    }
+
+    function hideSuggestions(fieldId) {
+      setTimeout(() => {
+        document.getElementById(fieldId + '-list').classList.remove('open');
+        updateDistance();
+      }, 150);
+    }
+
+    async function updateDistance() {
+      const from = document.getElementById('city-from').value.trim();
+      const to   = document.getElementById('city-to').value.trim();
+      if (!from || !to || from === to) {
+        document.getElementById('distance').value = '';
+        document.getElementById('distance-display').value = '';
+        return;
+      }
+
+      document.getElementById('distance-display').value = '⏳ Obliczam trasę…';
+      document.getElementById('distance').value = '';
+
+      // Places autocomplete zwraca "Miasto, Region, Kraj" — bierzemy tylko pierwszą część do haversine
+      const fromKey = from.split(',')[0].trim();
+      const toKey   = to.split(',')[0].trim();
+
+      try {
+        const res = await fetch(`/api/distance?origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}`);
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById('distance').value = data.km;
+          document.getElementById('distance-display').value = data.km.toLocaleString('pl-PL') + ' km';
+        } else {
+          if (CITIES[fromKey] && CITIES[toKey]) {
+            const km = haversineKm(CITIES[fromKey], CITIES[toKey]);
+            document.getElementById('distance').value = km;
+            document.getElementById('distance-display').value = km.toLocaleString('pl-PL') + ' km (szac.)';
+          } else {
+            document.getElementById('distance-display').value = '— wybierz miasto z listy';
+          }
+        }
+      } catch {
+        if (CITIES[fromKey] && CITIES[toKey]) {
+          const km = haversineKm(CITIES[fromKey], CITIES[toKey]);
+          document.getElementById('distance').value = km;
+          document.getElementById('distance-display').value = km.toLocaleString('pl-PL') + ' km (szac.)';
+        } else {
+          document.getElementById('distance-display').value = '— wybierz miasto z listy';
+        }
+      }
+    }
+
+    // ── Kalkulator wyceny ────────────────────────────────────────────────────
+    function calculatePrice() {
+      if (!wizardValidate(4)) return;
+
+      const distance  = +document.getElementById('distance').value;
+      const weightKg  = +document.getElementById('weight').value;
+      const cargoType = document.getElementById('cargo-type').value;
+      const loadType  = document.getElementById('load-type').value;
+      const urgency   = document.getElementById('urgency').value;
+      const insurance = document.getElementById('opt-insurance').checked;
+      const tracking  = document.getElementById('opt-tracking').checked;
+      const tail      = document.getElementById('opt-tail').checked;
+      const adr       = document.getElementById('opt-adr').checked;
+      const cityFrom  = document.getElementById('city-from').value.trim();
+      const cityTo    = document.getElementById('city-to').value.trim();
+      const name      = document.getElementById('contact-name').value.trim();
+      const company   = document.getElementById('contact-company').value.trim();
+      const email     = document.getElementById('contact-email').value.trim();
+      const phone     = document.getElementById('contact-phone').value.trim();
+      const loadDate  = document.getElementById('contact-load-date').value;
+      const deadline  = document.getElementById('contact-deadline').value;
+
+      const destCountry = document.getElementById('dest-country').value;
+      const ratesMap = { FR:{lo:1.6,hi:1.8}, IT:{lo:1.5,hi:1.7}, ES:{lo:1.2,hi:1.5}, PT:{lo:1.2,hi:1.5}, DE:{lo:1.2,hi:1.5}, NL:{lo:1.2,hi:1.5}, BE:{lo:1.2,hi:1.5}, LU:{lo:1.2,hi:1.5} };
+      const rates = ratesMap[destCountry] || { lo: 1.2, hi: 1.5 };
+      const lo = Math.round(distance * rates.lo / 10) * 10;
+      const hi = Math.round(distance * rates.hi / 10) * 10;
+
+      const cargoLabels = { standard:'Standardowy', chilled:'Chłodniczy', frozen:'Mrożony', adr:'ADR', oversized:'Ponadgabarytowy', valuable:'Wartościowy' };
+      const loadLabels  = { ftl:'FTL', ltl:'LTL (częściowy)', express:'Ekspresowy' };
+      const urgLabels   = { standard:'Standardowy (3–5 dni)', fast:'Przyspieszony (1–2 dni)', express:'Ekspresowy' };
+
+      document.getElementById('result-price').textContent = lo.toLocaleString('pl-PL') + ' – ' + hi.toLocaleString('pl-PL') + ' €';
+      document.getElementById('result-note').textContent = 'Cena orientacyjna netto. Nasz zespół skontaktuje się z Tobą w ciągu 2 godzin z dokładną ofertą.';
+      const extras = [insurance&&'ubezpieczenie', tracking&&'GPS', tail&&'winda', adr&&'ADR'].filter(Boolean).join(', ');
+
+      document.getElementById('result-details').innerHTML =
+        `Potwierdzenie wysłano na <strong>${email}</strong><br><br>` +
+        `<strong>${cityFrom} → ${cityTo}</strong> (${distance} km)<br>` +
+        `${weightKg.toLocaleString('pl-PL')} kg · ${cargoLabels[cargoType]||''} · ${loadLabels[loadType]||''}<br>` +
+        `${urgLabels[urgency]||''}` +
+        (extras ? '<br>Dodatki: ' + extras : '');
+      fetch('https://n8naiforbusiness.com/webhook/wilk-logistics-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, company, email, phone,
+          cityFrom, cityTo, distance,
+          weightKg, cargoType, loadType, urgency,
+          destCountry: { FR:'Francja', IT:'Włochy', ES:'Hiszpania', PT:'Portugalia', DE:'Niemcy', NL:'Holandia', BE:'Belgia', LU:'Luksemburg' }[destCountry] || destCountry,
+          priceRange: lo.toLocaleString('pl-PL') + ' – ' + hi.toLocaleString('pl-PL') + ' €',
+          extras,
+          loadDate,
+          deadline
+        })
+      }).catch(() => {});
+
+      wizardGoTo(5);
+    }
+
+    // Count-up animation
+    function animateCount(el) {
+      const target = +el.dataset.target;
+      const duration = 1800;
+      const start = performance.now();
+      const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        el.textContent = Math.floor(easeOut(progress) * target);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const statsObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.count').forEach(animateCount);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+
+    statsObserver.observe(document.querySelector('.stats-bar'));
+
+    // Form submit
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.form-submit');
+      const name    = document.getElementById('cf-name').value.trim();
+      const company = document.getElementById('cf-company').value.trim();
+      const phone   = document.getElementById('cf-phone').value.trim();
+      const email   = document.getElementById('cf-email').value.trim();
+      const transport = document.getElementById('cf-transport').value;
+      const details   = document.getElementById('cf-details').value.trim();
+
+      fetch('https://n8naiforbusiness.com/webhook/wilk-logistics-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, company, phone, email,
+          source: 'Formularz kontaktowy',
+          cargoType: transport || 'Nie podano',
+          szczegoly: details,
+          cityFrom: '', cityTo: '', distance: 0,
+          weightKg: 0, loadType: '', urgency: '',
+          priceRange: 'Do ustalenia',
+          extras: '', loadDate: '', deadline: ''
+        })
+      }).catch(() => {});
+
+      btn.textContent = '✓ Wysłano — odezwiemy się wkrótce';
+      btn.style.background = '#2d5a27';
+      btn.style.color = '#fff';
+      btn.disabled = true;
+    }
+
+
+    // ── Tłumaczenia i18n ─────────────────────────────────────────────────────
+    const translations = {
+      pl: {
+        nav_onas: 'O nas', nav_kontakt: 'Kontakt',
+        hero_tagline: 'Transport · Spedycja · Logistyka',
+        hero_h1a: 'Twój ładunek.', hero_h1b: 'Nasza odpowiedzialność.',
+        hero_lead: 'Profesjonalne usługi transportowe i logistyczne na terenie Polski i Europy. Niezawodność, precyzja, terminowość.',
+        hero_btn1: 'Zapytaj o ofertę', hero_btn2: 'Poznaj nas',
+        hero_scroll: 'Przewijaj',
+        stat1_suffix: ' lat', stat1_label: 'Doświadczenia',
+        stat2_label: 'Kierowców', stat3_label: 'Dyspozycyjność', stat4_label: 'Zestawów w flocie',
+        calc_tag: 'Kalkulator', calc_title: 'Szybka wycena transportu',
+        calc_lead: 'Wypełnij 4 kroki — otrzymasz orientacyjną wycenę i nasz team skontaktuje się z Tobą w ciągu 2 godzin.',
+        step1_label: 'Trasa', step2_label: 'Ładunek', step3_label: 'Termin', step4_label: 'Dane',
+        step1_title: 'Skąd i dokąd?', step1_sub: 'Podaj punkt załadunku i rozładunku — odległość wyliczymy automatycznie.',
+        city_from_label: 'Miasto załadunku', city_from_ph: 'np. Warszawa',
+        city_to_label: 'Miasto rozładunku', city_to_ph: 'np. Berlin',
+        distance_label: 'Odległość drogowa',
+        btn_next_cargo: 'Dalej — Ładunek →',
+        step2_title: 'Co przewozisz?', step2_sub: 'Opisz ładunek — rodzaj, waga i wymiary wpływają na wycenę.',
+        weight_label: 'Waga ładunku', weight_ph: 'np. 1500',
+        cargo_type_label: 'Rodzaj ładunku', cargo_select_ph: 'Wybierz typ',
+        cargo_std: 'Standardowy (suchy)', cargo_chilled: 'Chłodniczy (2–8°C)',
+        cargo_frozen: 'Mrożony (-18°C)', cargo_adr: 'ADR (niebezpieczne)',
+        cargo_oversized: 'Ponadgabarytowy', cargo_valuable: 'Wartościowy',
+        load_type_label: 'Rodzaj transportu', load_select_ph: 'Wybierz',
+        load_ftl: 'FTL — całopojazdowy', load_ltl: 'LTL — częściowy', load_express: 'Ekspresowy',
+        btn_back: '← Wróć', btn_next_deadline: 'Dalej — Termin →',
+        step3_title: 'Kiedy i jak?', step3_sub: 'Wybierz termin i ewentualne usługi dodatkowe.',
+        field_loaddate: 'Data załadunku', urgency_label: 'Termin realizacji',
+        urg_std: 'Standardowy (3–5 dni roboczych)', urg_fast: 'Przyspieszony (1–2 dni)',
+        urg_express: 'Ekspresowy (tego samego dnia)',
+        additional_services_label: 'Usługi dodatkowe',
+        opt_insurance_label: 'Ubezpieczenie cargo', opt_tracking_label: 'Monitoring GPS 24/7',
+        opt_tail_label: 'Winda tylna / rampa', opt_adr_label: 'Dopuszczenie ADR',
+        notes_label: 'Uwagi do zlecenia', notes_ph: 'np. towar kruchy, potrzebne paski mocujące, dostawa do rampy nr 3…',
+        btn_next_contact: 'Dalej — Dane kontaktowe →',
+        step4_title: 'Twoje dane', step4_sub: 'Prześlemy wycenę i skontaktujemy się w ciągu 2 godzin w dni robocze.',
+        field_name: 'Imię i nazwisko', field_name_ph: 'Jan Kowalski',
+        field_company: 'Nazwa firmy', field_company_ph: 'np. ABC Transport Sp. z o.o.',
+        field_email: 'Adres e-mail', field_email_ph: 'jan@firma.pl',
+        field_phone: 'Numer telefonu',
+        field_deadline: 'Termin realizacji', field_nip: 'NIP firmy',
+        optional_label: 'opcjonalnie',
+        field_source: 'Skąd nas znasz?', source_select_ph: 'Wybierz',
+        src_opt1: 'Google', src_opt2: 'Polecenie / znajomi',
+        src_opt3: 'Media społecznościowe', src_opt4: 'Giełda transportowa', src_opt5: 'Inne',
+        btn_calculate: 'Oblicz wycenę i wyślij →',
+        result_tag: 'Szacowana cena netto', result_sent_title: 'Zapytanie wysłane!',
+        result_newcalc: '↺ Nowa wycena',
+        about_tag: 'O nas', about_title: 'Siła i precyzja w każdym kursie',
+        about_lead: 'WILK Logistics to firma transportowa zbudowana na filarach profesjonalizmu, rzetelności i partnerskiego podejścia do każdego klienta.',
+        about_p1: 'Od 2018 roku obsługujemy firmy z sektora przemysłowego, handlowego i produkcyjnego, dostarczając ich ładunki bezpiecznie i terminowo — w Polsce i za granicą. We własnej flocie posiadamy 25 zestawów z naczepami typu chłodnia.',
+        about_p2: 'Specjalizujemy się w przewozie towarów łatwo psujących się oraz elektroniki. Większość tras realizujemy w podwójnych obsadach kierowców, dzięki czemu ekspresowo dostarczamy towar bez zbędnych przestojów.',
+        about_p3: 'Obsługujemy głównie kraje zachodnie — Portugalię, Hiszpanię, Francję i Benelux (90% naszych tras). Porozumiewamy się w językach angielskim i hiszpańskim.',
+        val1_title: 'Terminowość', val1_desc: 'Dotrzymujemy terminów. Każde zlecenie realizujemy zgodnie z uzgodnionym harmonogramem.',
+        val2_title: 'Bezpieczeństwo', val2_desc: 'Pełne ubezpieczenie ładunku i monitoring GPS na każdym etapie transportu.',
+        val3_title: 'Partnerstwo', val3_desc: 'Budujemy długofalowe relacje oparte na zaufaniu i wzajemnym szacunku.',
+        val4_title: 'Elastyczność', val4_desc: 'Dostosowujemy się do wymagań klienta — od ekspresowych dostaw po regularne trasy.',
+        routes_tag: 'Zasięg', routes_title: 'Gdzie dowozimy',
+        routes_lead: 'Regularne kursy w Polsce i wybranych krajach UE. Kliknij miasto, aby zobaczyć szczegóły.',
+        mission_tag: 'Nasza misja', mission_h3: 'Każdy ładunek traktujemy jak własny.',
+        contact_tag: 'Kontakt', contact_title: 'Porozmawiajmy o Twoim zleceniu',
+        contact_lead: 'Wypełnij formularz lub skontaktuj się bezpośrednio. Odpowiadamy w ciągu 2 godzin w dni robocze.',
+        contact_phone_label: 'Telefon', contact_email_label: 'Email',
+        contact_address_label: 'Adres', contact_hours_label: 'Godziny pracy',
+        contact_hours_val: 'Pon – Pt: 8:00 – 18:00', contact_24: 'Dyspozytornia 24/7',
+        form_title: 'Zapytaj o ofertę', form_subtitle: 'Bezpłatna wycena w 2 godziny',
+        cf_name_label: 'Imię i nazwisko', cf_name_ph: 'Jan Kowalski',
+        cf_company_label: 'Firma', cf_company_ph: 'Nazwa firmy',
+        cf_phone_label: 'Telefon', cf_email_label: 'Email', cf_email_ph: 'email@firma.pl',
+        cf_transport_label: 'Rodzaj transportu', cf_transport_ph: 'Wybierz rodzaj transportu',
+        cf_opt1: 'Transport krajowy', cf_opt2: 'Transport międzynarodowy',
+        cf_opt3: 'Spedycja', cf_opt4: 'Transport ekspresowy', cf_opt5: 'Inne',
+        cf_details_label: 'Szczegóły zlecenia',
+        cf_details_ph: 'Opisz zlecenie: trasa, rodzaj towaru, waga, termin...',
+        btn_send: 'Wyślij zapytanie →',
+        footer_copy: '© 2018–2025 WILK Logistics. Wszelkie prawa zastrzeżone.',
+      },
+      en: {
+        nav_onas: 'About us', nav_kontakt: 'Contact',
+        hero_tagline: 'Transport · Freight · Logistics',
+        hero_h1a: 'Your cargo.', hero_h1b: 'Our responsibility.',
+        hero_lead: 'Professional transport and logistics services across Poland and Europe. Reliability, precision, punctuality.',
+        hero_btn1: 'Request a quote', hero_btn2: 'Learn more',
+        hero_scroll: 'Scroll',
+        stat1_suffix: ' yrs', stat1_label: 'Experience',
+        stat2_label: 'Drivers', stat3_label: 'Availability', stat4_label: 'Fleet units',
+        calc_tag: 'Calculator', calc_title: 'Quick transport quote',
+        calc_lead: 'Complete 4 steps — you\'ll receive an estimated price and our team will contact you within 2 hours.',
+        step1_label: 'Route', step2_label: 'Cargo', step3_label: 'Timeline', step4_label: 'Details',
+        step1_title: 'From and to where?', step1_sub: 'Enter the loading and unloading point — we\'ll calculate the distance automatically.',
+        city_from_label: 'Loading city', city_from_ph: 'e.g. Warsaw',
+        city_to_label: 'Unloading city', city_to_ph: 'e.g. Berlin',
+        distance_label: 'Road distance',
+        btn_next_cargo: 'Next — Cargo →',
+        step2_title: 'What are you shipping?', step2_sub: 'Describe the cargo — type, weight and dimensions affect the price.',
+        weight_label: 'Cargo weight', weight_ph: 'e.g. 1500',
+        cargo_type_label: 'Cargo type', cargo_select_ph: 'Select type',
+        cargo_std: 'Standard (dry)', cargo_chilled: 'Chilled (2–8°C)',
+        cargo_frozen: 'Frozen (-18°C)', cargo_adr: 'ADR (hazardous)',
+        cargo_oversized: 'Oversized', cargo_valuable: 'Valuable',
+        load_type_label: 'Transport type', load_select_ph: 'Select',
+        load_ftl: 'FTL — Full truckload', load_ltl: 'LTL — Partial load', load_express: 'Express',
+        btn_back: '← Back', btn_next_deadline: 'Next — Timeline →',
+        step3_title: 'When and how?', step3_sub: 'Choose the timeline and any additional services.',
+        field_loaddate: 'Loading date', urgency_label: 'Delivery timeline',
+        urg_std: 'Standard (3–5 business days)', urg_fast: 'Fast (1–2 days)',
+        urg_express: 'Express (same day)',
+        additional_services_label: 'Additional services',
+        opt_insurance_label: 'Cargo insurance', opt_tracking_label: 'GPS Monitoring 24/7',
+        opt_tail_label: 'Tail lift / ramp', opt_adr_label: 'ADR approval',
+        notes_label: 'Order notes', notes_ph: 'e.g. fragile goods, straps needed, delivery to dock no. 3…',
+        btn_next_contact: 'Next — Contact details →',
+        step4_title: 'Your details', step4_sub: 'We\'ll send the quote and contact you within 2 hours on business days.',
+        field_name: 'Full name', field_name_ph: 'John Smith',
+        field_company: 'Company name', field_company_ph: 'e.g. ABC Transport Ltd.',
+        field_email: 'E-mail address', field_email_ph: 'john@company.com',
+        field_phone: 'Phone number',
+        field_deadline: 'Deadline', field_nip: 'Company VAT ID',
+        optional_label: 'optional',
+        field_source: 'How did you find us?', source_select_ph: 'Select',
+        src_opt1: 'Google', src_opt2: 'Referral / friends',
+        src_opt3: 'Social media', src_opt4: 'Freight exchange', src_opt5: 'Other',
+        btn_calculate: 'Calculate price and submit →',
+        result_tag: 'Estimated net price', result_sent_title: 'Inquiry sent!',
+        result_newcalc: '↺ New calculation',
+        about_tag: 'About us', about_title: 'Strength and precision in every haul',
+        about_lead: 'WILK Logistics is a transport company built on the pillars of professionalism, reliability and a partnership approach to every client.',
+        about_p1: 'Since 2018 we have served companies from the industrial, commercial and manufacturing sectors, delivering their loads safely and on time — in Poland and abroad. Our own fleet comprises 25 sets with refrigerated semi-trailers.',
+        about_p2: 'We specialize in the transport of perishable goods and electronics. Most routes are operated with double driver crews, allowing us to deliver goods express without unnecessary stops.',
+        about_p3: 'We primarily serve Western European countries — Portugal, Spain, France and Benelux (90% of our routes). We communicate in English and Spanish.',
+        val1_title: 'Punctuality', val1_desc: 'We meet deadlines. Every order is fulfilled according to the agreed schedule.',
+        val2_title: 'Safety', val2_desc: 'Full cargo insurance and GPS monitoring at every stage of transport.',
+        val3_title: 'Partnership', val3_desc: 'We build long-term relationships based on trust and mutual respect.',
+        val4_title: 'Flexibility', val4_desc: 'We adapt to client requirements — from express deliveries to regular routes.',
+        routes_tag: 'Coverage', routes_title: 'Where we deliver',
+        routes_lead: 'Regular routes in Poland and selected EU countries. Click a city to see details.',
+        mission_tag: 'Our mission', mission_h3: 'We treat every load as our own.',
+        contact_tag: 'Contact', contact_title: 'Let\'s talk about your shipment',
+        contact_lead: 'Fill in the form or contact us directly. We respond within 2 hours on business days.',
+        contact_phone_label: 'Phone', contact_email_label: 'Email',
+        contact_address_label: 'Address', contact_hours_label: 'Working hours',
+        contact_hours_val: 'Mon – Fri: 8:00 – 18:00', contact_24: 'Dispatch 24/7',
+        form_title: 'Request a quote', form_subtitle: 'Free quote within 2 hours',
+        cf_name_label: 'Full name', cf_name_ph: 'John Smith',
+        cf_company_label: 'Company', cf_company_ph: 'Company name',
+        cf_phone_label: 'Phone', cf_email_label: 'Email', cf_email_ph: 'email@company.com',
+        cf_transport_label: 'Transport type', cf_transport_ph: 'Select transport type',
+        cf_opt1: 'Domestic transport', cf_opt2: 'International transport',
+        cf_opt3: 'Freight forwarding', cf_opt4: 'Express transport', cf_opt5: 'Other',
+        cf_details_label: 'Order details',
+        cf_details_ph: 'Describe your order: route, cargo type, weight, deadline...',
+        btn_send: 'Send inquiry →',
+        footer_copy: '© 2018–2025 WILK Logistics. All rights reserved.',
+      },
+      es: {
+  nav_onas: 'Nosotros', nav_uslugi: 'Servicios', nav_kalkulator: 'Calculadora',
+  nav_trasy: 'Rutas', nav_kontakt: 'Contacto', nav_cta: 'Solicitar oferta',
+  hero_tag: 'Transporte y Logística',
+  hero_h1a: 'Transporte', hero_h1b: 'Profesional', hero_h1c: 'y Logística',
+  hero_lead: 'Soluciones logísticas integrales para su negocio. Transporte de mercancías refrigeradas, ADR, sobredimensionadas y estándar en toda Europa.',
+  hero_btn1: 'Calcular precio', hero_btn2: 'Llamar ahora',
+  stat1_label: 'Pedidos completados', stat2_label: 'Conductores',
+  stat3_label: 'Años de experiencia', stat4_label: 'Disponibilidad',
+  svc_tag: 'Lo que hacemos', svc_title: 'Nuestras Especializaciones',
+  svc_lead: 'Nos especializamos en transportes que requieren especial cuidado y precisión. Cada pedido se trata individualmente.',
+  svc1_name: 'Transporte Refrigerado',
+  svc1_desc: 'Transporte de mercancías que requieren temperatura controlada de +2°C a +8°C. Vehículos frigoríficos modernos con monitoreo GPS.',
+  svc1_temp: 'Refrigerado 2–8°C',
+  svc2_name: 'Transporte Congelado',
+  svc2_desc: 'Transporte de productos ultracongelados a temperaturas de hasta -25°C con cumplimiento HACCP.',
+  svc2_temp: 'Congelado -25°C',
+  svc3_name: 'Carga ADR',
+  svc3_desc: 'Transporte de materiales peligrosos conforme a la normativa ADR. Conductores certificados y vehículos debidamente equipados.',
+  svc3_tag: 'Certificado ADR',
+  svc4_name: 'Transporte Estándar',
+  svc4_desc: 'Servicios de transporte integrales para carga estándar, palés y envíos grupales en toda Europa.',
+  svc5_name: 'Carga Sobredimensionada',
+  svc5_desc: 'Transporte especial con documentación completa y permisos. Análisis de ruta y servicio de escolta.',
+  why_tag: 'Nuestra ventaja', why_title: '¿Por qué WILK Logistics?',
+  why_lead: 'Nos eligen empresas que valoran la fiabilidad, la transparencia y un enfoque de asociación en cada pedido.',
+  why1_title: 'Equipo Experimentado',
+  why1_desc: 'Más de 7 años de experiencia en el sector TSL. Nuestros conductores y despachadores conocen las carreteras y normativas de todos los países europeos.',
+  why2_title: 'Monitoreo GPS 24/7',
+  why2_desc: 'Cada vehículo equipado con sistema GPS. Tiene acceso en tiempo real a la ubicación de su carga en cualquier momento.',
+  why3_title: 'Condiciones Flexibles',
+  why3_desc: 'Nos adaptamos a los requisitos del cliente: contratos regulares, pedidos spot, flota dedicada.',
+  why4_title: 'Seguridad de la Carga',
+  why4_desc: 'Seguro OCP completo hasta 100.000 EUR. Cada carga asegurada y monitoreada durante toda la ruta.',
+  calc_tag: 'Presupuesto gratuito', calc_title: 'Calculadora de Transporte',
+  calc_lead: 'Complete 4 pasos — recibirá un precio estimado y nuestro equipo le contactará en 2 horas.',
+  step1_label: 'Ruta', step2_label: 'Carga', step3_label: 'Opciones',
+  step4_label: 'Datos', step5_label: 'Resultado',
+  step1_title: '¿Desde dónde y hacia dónde?',
+  city_from_label: 'Ciudad de origen', city_to_label: 'Ciudad de destino',
+  distance_label: 'O introduzca la distancia manualmente (km)',
+  step2_title: 'Parámetros de la carga',
+  weight_label: 'Peso de la carga (kg)',
+  cargo_type_label: 'Tipo de carga',
+  cargo_std: 'Estándar', cargo_chilled: 'Refrigerado (+2 a +8°C)',
+  cargo_frozen: 'Congelado (hasta -25°C)', cargo_adr: 'ADR / Peligroso',
+  cargo_oversized: 'Sobredimensionado', cargo_valuable: 'Valioso',
+  load_type_label: 'Tipo de pedido',
+  load_ftl: 'FTL — Carga completa', load_ltl: 'LTL — Carga parcial', load_express: 'Exprés',
+  step3_title: 'Opciones adicionales',
+  urgency_label: 'Plazo de entrega',
+  urg_std: 'Estándar (3–5 días hábiles)', urg_fast: 'Rápido (1–2 días hábiles)',
+  urg_express: 'Exprés (mismo día)',
+  opt_insurance_label: 'Seguro de carga',
+  opt_insurance_desc: 'Seguro adicional hasta 500.000 PLN',
+  opt_tracking_label: 'Rastreo GPS',
+  opt_tracking_desc: 'Acceso a la ubicación del vehículo en tiempo real',
+  opt_tail_label: 'Elevador de carga',
+  opt_tail_desc: 'Vehículo equipado con elevador de carga',
+  opt_adr_label: 'Certificado ADR',
+  opt_adr_desc: 'Conductor con certificado ADR para transporte de materiales peligrosos',
+  step4_title: 'Sus datos',
+  field_name: 'Nombre completo', field_name_ph: 'Juan García',
+  field_company: 'Nombre de empresa', field_company_ph: 'p. ej. ABC Transport S.L.',
+  field_email: 'Correo electrónico', field_email_ph: 'juan@empresa.com',
+  field_phone: 'Número de teléfono', field_phone_ph: '+48 000 000 000',
+  field_loaddate: 'Fecha de carga', field_deadline: 'Fecha límite',
+  field_nip: 'CIF/NIF empresa', field_nip_ph: '000-000-00-00',
+  field_source: '¿Cómo nos encontró?',
+  src_opt1: 'Google', src_opt2: 'Recomendación / amigos',
+  src_opt3: 'Redes sociales', src_opt4: 'Bolsa de transporte', src_opt5: 'Otro',
+  btn_calculate: 'Calcular precio y enviar →',
+  result_tag: 'Precio neto estimado',
+  result_whatsapp: 'Escribir por WhatsApp', result_newcalc: 'Nuevo cálculo',
+  about_tag: 'Quiénes somos',
+  about_title: 'WILK Logistics — Su Socio en Transporte',
+  about_p1: 'WILK Logistics es una empresa de transporte y logística con más de 7 años de experiencia en el mercado TSL. Nos especializamos en transporte refrigerado, congelado, ADR y de carga sobredimensionada en toda Europa.',
+  about_p2: 'Contamos con una flota moderna de vehículos frigoríficos y estándar, equipados con sistemas de monitoreo GPS. Nuestro equipo de conductores y despachadores experimentados garantiza que cada envío llegue a tiempo y en perfectas condiciones.',
+  about_badge1: 'Con seguridad', about_badge2: 'A tiempo', about_badge3: 'Profesionalmente',
+  routes_tag: 'A dónde vamos', routes_title: 'Rutas Disponibles',
+  routes_lead: 'Servicios regulares en Polonia y países seleccionados de la UE. Haga clic en una ciudad para ver los detalles.',
+  contact_tag: 'Contáctenos', contact_title: 'Contacto',
+  contact_lead: 'Rellene el formulario o contáctenos directamente. Respondemos en 2 horas en días laborables.',
+  contact_phone_label: 'Teléfono', contact_email_label: 'Email',
+  contact_address_label: 'Dirección', contact_hours_label: 'Horario de trabajo',
+  contact_hours_val: 'Lun – Vie: 8:00 – 18:00', contact_24: 'Despacho 24/7',
+  form_title: 'Solicitar oferta', form_subtitle: 'Presupuesto gratuito en 2 horas',
+  cf_name_label: 'Nombre completo', cf_name_ph: 'Juan García',
+  cf_company_label: 'Empresa', cf_company_ph: 'Nombre de empresa',
+  cf_phone_label: 'Teléfono', cf_email_label: 'Email', cf_email_ph: 'email@empresa.com',
+  cf_transport_label: 'Tipo de transporte', cf_transport_ph: 'Seleccione tipo de transporte',
+  cf_opt1: 'Transporte nacional', cf_opt2: 'Transporte internacional',
+  cf_opt3: 'Logística', cf_opt4: 'Transporte exprés', cf_opt5: 'Otro',
+  cf_details_label: 'Detalles del pedido',
+  cf_details_ph: 'Describa su pedido: ruta, tipo de mercancía, peso, plazo...',
+  btn_send: 'Enviar consulta →',
+  footer_copy: '© 2018–2025 WILK Logistics. Todos los derechos reservados.',
+  btn_back: '← Volver', btn_next: 'Siguiente →',
+      }
+    };
+
+    function setLanguage(lang) {
+      localStorage.setItem('lang', lang);
+      document.documentElement.lang = lang === 'pl' ? 'pl' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[lang] && translations[lang][key] !== undefined) {
+          el.textContent = translations[lang][key];
+        }
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (translations[lang] && translations[lang][key] !== undefined) {
+          el.placeholder = translations[lang][key];
+        }
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => setLanguage(localStorage.getItem('lang') || 'pl'));
+
+    // ── Mapa zasięgu ─────────────────────────────────────────────────────────
+    (function initMap() {
+      const map = L.map('map', {
+        center: [52.0, 14.5],
+        zoom: 5,
+        scrollWheelZoom: false,
+        zoomControl: true,
+        attributionControl: true,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
+
+      map.on('focus', () => map.scrollWheelZoom.enable());
+      map.on('blur',  () => map.scrollWheelZoom.disable());
+
+      const C = {
+        'Warszawa':    [52.23, 21.01], 'Kraków':      [50.06, 19.94],
+        'Wrocław':     [51.11, 17.04], 'Gdańsk':      [54.35, 18.65],
+        'Gdynia':      [54.52, 18.53], 'Poznań':      [52.41, 16.93],
+        'Łódź':        [51.77, 19.46], 'Katowice':    [50.26, 19.02],
+        'Szczecin':    [53.43, 14.55], 'Lublin':      [51.25, 22.57],
+        'Białystok':   [53.13, 23.16], 'Rzeszów':     [50.04, 22.00],
+        'Toruń':       [53.01, 18.60], 'Bydgoszcz':   [53.12, 18.01],
+        'Kielce':      [50.87, 20.63], 'Olsztyn':     [53.78, 20.48],
+        'Zielona Góra':[51.94, 15.51], 'Opole':       [50.67, 17.93],
+        'Radom':       [51.40, 21.15], 'Częstochowa': [50.81, 19.12],
+        'Berlin':      [52.52, 13.40], 'Hamburg':     [53.57, 10.02],
+        'Monachium':   [48.14, 11.58], 'Frankfurt':   [50.11,  8.68],
+        'Kolonia':     [50.94,  6.96], 'Dortmund':    [51.51,  7.47],
+        'Stuttgart':   [48.78,  9.18], 'Praga':       [50.08, 14.42],
+        'Wiedeń':      [48.21, 16.37], 'Bratysława':  [48.15, 17.11],
+        'Budapeszt':   [47.50, 19.04], 'Bukareszt':   [44.43, 26.10],
+        'Amsterdam':   [52.37,  4.90], 'Bruksela':    [50.85,  4.35],
+        'Paryż':       [48.86,  2.35], 'Lyon':        [45.75,  4.83],
+        'Kopenhaga':   [55.68, 12.57], 'Sztokholm':   [59.33, 18.07],
+        'Oslo':        [59.91, 10.75], 'Helsinki':    [60.17, 24.93],
+        'Wilno':       [54.69, 25.28], 'Ryga':        [56.95, 24.11],
+        'Tallinn':     [59.44, 24.75], 'Kijów':       [50.45, 30.52],
+        'Madryt':      [40.42, -3.70], 'Barcelona':   [41.39,  2.16],
+        'Mediolan':    [45.47,  9.19], 'Rzym':        [41.90, 12.50],
+        'Londyn':      [51.51, -0.13], 'Brno':        [49.19, 16.61],
+      };
+
+      const routeGroups = [
+        { cities: ['Warszawa','Berlin','Hamburg','Amsterdam','Bruksela','Paryż'], cls: 'map-route-main map-route-animated' },
+        { cities: ['Warszawa','Praga','Wiedeń','Budapeszt','Bukareszt'], cls: 'map-route-eu' },
+        { cities: ['Warszawa','Wilno','Ryga','Tallinn'], cls: 'map-route-eu map-route-animated' },
+        { cities: ['Kopenhaga','Sztokholm','Oslo'], cls: 'map-route-eu' },
+        { cities: ['Hamburg','Kopenhaga'], cls: 'map-route-eu' },
+        { cities: ['Sztokholm','Helsinki'], cls: 'map-route-eu' },
+        { cities: ['Paryż','Lyon','Mediolan','Rzym'], cls: 'map-route-eu' },
+        { cities: ['Paryż','Madryt','Barcelona'], cls: 'map-route-eu' },
+        { cities: ['Frankfurt','Stuttgart','Monachium','Wiedeń'], cls: 'map-route-eu' },
+        { cities: ['Amsterdam','Londyn'], cls: 'map-route-eu' },
+        { cities: ['Mediolan','Bratysława'], cls: 'map-route-eu' },
+        { cities: ['Warszawa','Kijów'], cls: 'map-route-eu' },
+        { cities: ['Gdańsk','Gdynia','Szczecin'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Gdańsk'], cls: 'map-route-pl map-route-animated' },
+        { cities: ['Warszawa','Poznań','Wrocław','Opole','Katowice','Kraków','Rzeszów'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Łódź','Częstochowa','Katowice'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Lublin','Rzeszów'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Białystok'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Bydgoszcz','Toruń','Gdańsk'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Olsztyn'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Radom','Kielce'], cls: 'map-route-pl' },
+        { cities: ['Wrocław','Zielona Góra','Szczecin'], cls: 'map-route-pl' },
+        { cities: ['Poznań','Zielona Góra'], cls: 'map-route-pl' },
+        { cities: ['Warszawa','Szczecin'], cls: 'map-route-pl' },
+      ];
+
+      routeGroups.forEach(({ cities, cls }) => {
+        const coords = cities.map(n => C[n]).filter(Boolean);
+        if (coords.length < 2) return;
+        L.polyline(coords, { className: cls, weight: 0 }).addTo(map);
+      });
+
+      const hubIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:14px;height:14px;border-radius:50%;background:#C9A84C;border:2px solid rgba(255,255,255,0.25);box-shadow:0 0 0 4px rgba(201,168,76,0.2),0 0 16px rgba(201,168,76,0.7);"></div>',
+        iconSize: [14, 14], iconAnchor: [7, 7],
+      });
+
+      const plIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:9px;height:9px;border-radius:50%;background:#C9A84C;border:1.5px solid rgba(255,255,255,0.2);box-shadow:0 0 8px rgba(201,168,76,0.5);"></div>',
+        iconSize: [9, 9], iconAnchor: [4.5, 4.5],
+      });
+
+      const euIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:7px;height:7px;border-radius:50%;background:rgba(201,168,76,0.7);border:1px solid rgba(201,168,76,0.4);box-shadow:0 0 6px rgba(201,168,76,0.35);"></div>',
+        iconSize: [7, 7], iconAnchor: [3.5, 3.5],
+      });
+
+      const plCities = ['Warszawa','Kraków','Wrocław','Gdańsk','Gdynia','Poznań','Łódź','Katowice',
+        'Szczecin','Lublin','Białystok','Rzeszów','Toruń','Bydgoszcz','Kielce','Olsztyn',
+        'Zielona Góra','Opole','Radom','Częstochowa'];
+
+      const countryHints = {
+        'Berlin':'Niemcy','Hamburg':'Niemcy','Monachium':'Niemcy','Frankfurt':'Niemcy',
+        'Kolonia':'Niemcy','Dortmund':'Niemcy','Stuttgart':'Niemcy',
+        'Praga':'Czechy','Brno':'Czechy','Wiedeń':'Austria','Bratysława':'Słowacja',
+        'Budapeszt':'Węgry','Bukareszt':'Rumunia','Amsterdam':'Holandia',
+        'Bruksela':'Belgia','Paryż':'Francja','Lyon':'Francja','Madryt':'Hiszpania',
+        'Barcelona':'Hiszpania','Mediolan':'Włochy','Rzym':'Włochy','Londyn':'Wielka Brytania',
+        'Kopenhaga':'Dania','Sztokholm':'Szwecja','Oslo':'Norwegia','Helsinki':'Finlandia',
+        'Wilno':'Litwa','Ryga':'Łotwa','Tallinn':'Estonia','Kijów':'Ukraina',
+      };
+
+      Object.entries(C).forEach(([name, coords]) => {
+        const isHub = name === 'Warszawa';
+        const isPl  = plCities.includes(name);
+        const icon  = isHub ? hubIcon : isPl ? plIcon : euIcon;
+        const country = isPl ? 'Polska' : (countryHints[name] || '');
+        const popup = `<b>${name}</b>${country ? `<span>${country}</span>` : ''}`;
+        L.marker(coords, { icon }).addTo(map).bindPopup(popup, { offset: [0, -4] });
+      });
+
+      const legend = L.control({ position: 'bottomright' });
+      legend.onAdd = () => {
+        const div = L.DomUtil.create('div', 'map-legend');
+        div.innerHTML = `
+          <div class="map-legend-title">Sieć tras</div>
+          <div class="map-legend-item">
+            <div class="map-legend-dot" style="background:#C9A84C;box-shadow:0 0 6px rgba(201,168,76,0.6);"></div>
+            Trasy główne
+          </div>
+          <div class="map-legend-item">
+            <div class="map-legend-dot" style="background:rgba(201,168,76,0.55);"></div>
+            Trasy krajowe
+          </div>
+          <div class="map-legend-item">
+            <div class="map-legend-dot" style="background:rgba(201,168,76,0.4);"></div>
+            Europa
+          </div>`;
+        return div;
+      };
+      legend.addTo(map);
+    })();
+  </script>
+
+  <!-- WhatsApp floating button -->
+  <a href="https://wa.me/48539116675" target="_blank" rel="noopener" class="wa-fab" aria-label="WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28" height="28">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+</body>
+</html>
