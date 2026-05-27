@@ -1571,16 +1571,16 @@
             </div>
           </div>
           <div class="wfield" style="margin-top:20px;">
-            <label>Kraj docelowy <span class="req">*</span></label>
+            <label><span data-i18n="country_label">Kraj docelowy</span> <span class="req">*</span></label>
             <div class="country-tiles">
-              <button type="button" class="country-tile" id="ctile-fr" onclick="selectCountry('FR')">🇫🇷 Francja</button>
-              <button type="button" class="country-tile" id="ctile-it" onclick="selectCountry('IT')">🇮🇹 Włochy</button>
-              <button type="button" class="country-tile" id="ctile-es" onclick="selectCountry('ES')">🇪🇸 Hiszpania</button>
-              <button type="button" class="country-tile" id="ctile-pt" onclick="selectCountry('PT')">🇵🇹 Portugalia</button>
-              <button type="button" class="country-tile" id="ctile-de" onclick="selectCountry('DE')">🇩🇪 Niemcy</button>
-              <button type="button" class="country-tile" id="ctile-nl" onclick="selectCountry('NL')">🇳🇱 Holandia</button>
-              <button type="button" class="country-tile" id="ctile-be" onclick="selectCountry('BE')">🇧🇪 Belgia</button>
-              <button type="button" class="country-tile" id="ctile-lu" onclick="selectCountry('LU')">🇱🇺 Luksemburg</button>
+              <button type="button" class="country-tile" id="ctile-fr" data-i18n="ctile_fr" onclick="selectCountry('FR')">🇫🇷 Francja</button>
+              <button type="button" class="country-tile" id="ctile-it" data-i18n="ctile_it" onclick="selectCountry('IT')">🇮🇹 Włochy</button>
+              <button type="button" class="country-tile" id="ctile-es" data-i18n="ctile_es" onclick="selectCountry('ES')">🇪🇸 Hiszpania</button>
+              <button type="button" class="country-tile" id="ctile-pt" data-i18n="ctile_pt" onclick="selectCountry('PT')">🇵🇹 Portugalia</button>
+              <button type="button" class="country-tile" id="ctile-de" data-i18n="ctile_de" onclick="selectCountry('DE')">🇩🇪 Niemcy</button>
+              <button type="button" class="country-tile" id="ctile-nl" data-i18n="ctile_nl" onclick="selectCountry('NL')">🇳🇱 Holandia</button>
+              <button type="button" class="country-tile" id="ctile-be" data-i18n="ctile_be" onclick="selectCountry('BE')">🇧🇪 Belgia</button>
+              <button type="button" class="country-tile" id="ctile-lu" data-i18n="ctile_lu" onclick="selectCountry('LU')">🇱🇺 Luksemburg</button>
             </div>
             <input type="hidden" id="dest-country">
           </div>
@@ -2460,6 +2460,10 @@
         city_from_label: 'Miasto załadunku', city_from_ph: 'np. Warszawa',
         city_to_label: 'Miasto rozładunku', city_to_ph: 'np. Berlin',
         distance_label: 'Odległość drogowa',
+        country_label: 'Kraj docelowy',
+        ctile_fr: '🇫🇷 Francja', ctile_it: '🇮🇹 Włochy', ctile_es: '🇪🇸 Hiszpania',
+        ctile_pt: '🇵🇹 Portugalia', ctile_de: '🇩🇪 Niemcy', ctile_nl: '🇳🇱 Holandia',
+        ctile_be: '🇧🇪 Belgia', ctile_lu: '🇱🇺 Luksemburg',
         btn_next_cargo: 'Dalej — Ładunek →',
         step2_title: 'Co przewozisz?', step2_sub: 'Opisz ładunek — rodzaj, waga i wymiary wpływają na wycenę.',
         weight_label: 'Waga ładunku', weight_ph: 'np. 1500',
@@ -2537,6 +2541,10 @@
         city_from_label: 'Loading city', city_from_ph: 'e.g. Warsaw',
         city_to_label: 'Unloading city', city_to_ph: 'e.g. Berlin',
         distance_label: 'Road distance',
+        country_label: 'Destination country',
+        ctile_fr: '🇫🇷 France', ctile_it: '🇮🇹 Italy', ctile_es: '🇪🇸 Spain',
+        ctile_pt: '🇵🇹 Portugal', ctile_de: '🇩🇪 Germany', ctile_nl: '🇳🇱 Netherlands',
+        ctile_be: '🇧🇪 Belgium', ctile_lu: '🇱🇺 Luxembourg',
         btn_next_cargo: 'Next — Cargo →',
         step2_title: 'What are you shipping?', step2_sub: 'Describe the cargo — type, weight and dimensions affect the price.',
         weight_label: 'Cargo weight', weight_ph: 'e.g. 1500',
@@ -2639,6 +2647,10 @@
   step1_title: '¿Desde dónde y hacia dónde?',
   city_from_label: 'Ciudad de origen', city_to_label: 'Ciudad de destino',
   distance_label: 'O introduzca la distancia manualmente (km)',
+  country_label: 'País de destino',
+  ctile_fr: '🇫🇷 Francia', ctile_it: '🇮🇹 Italia', ctile_es: '🇪🇸 España',
+  ctile_pt: '🇵🇹 Portugal', ctile_de: '🇩🇪 Alemania', ctile_nl: '🇳🇱 Países Bajos',
+  ctile_be: '🇧🇪 Bélgica', ctile_lu: '🇱🇺 Luxemburgo',
   step2_title: 'Parámetros de la carga',
   weight_label: 'Peso de la carga (kg)',
   cargo_type_label: 'Tipo de carga',
