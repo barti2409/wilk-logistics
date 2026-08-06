@@ -64,5 +64,11 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://wilklogistics.com/blog/transport-ponadgabarytowy-z-polski-do-europy/</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
   <!-- SITEMAP_POSTS -->
 </urlset>
