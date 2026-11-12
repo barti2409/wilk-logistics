@@ -142,5 +142,11 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://wilklogistics.com/blog/certyfikat-atp-transport-chlodniczy-wymagania/</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
   <!-- SITEMAP_POSTS -->
 </urlset>
